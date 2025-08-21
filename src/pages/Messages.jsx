@@ -16,8 +16,9 @@ const Messages = () => {
     const fetchConversations = async () => {
       try {
         const res = await axios.get('/api/messages/conversations');
-        setConversations(res.data);
+        setConversations(Array.isArray(res.data) ? res.data : []);
       } catch (err) {
+        setConversations([]);
         setError('Failed to load conversations.');
       } finally {
         setLoading(false);
