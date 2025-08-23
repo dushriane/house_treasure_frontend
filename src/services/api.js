@@ -49,9 +49,12 @@ export const authAPI = {
 export const usersAPI = {
   getAllUsers: () => api.get('/users'),
   getUserById: (id) => api.get(`/users/${id}`),
-  updateUser: (id, userData) => api.put(`/users/${id}`, userData),
-  deleteUser: (id) => api.delete(`/users/${id}`),
+  registerUser: (userData) => api.post('/users/register', userData),
+  updateUser: (id, userData) => api.put(`/users/${id}/profile`, userData),
+  deleteUser: (id) => api.delete(`/users/${id}`), 
   updateProfile: (id, profileData) => api.put(`/users/${id}/profile`, profileData),
+  getUserProfile: (id) => api.get(`/users/${id}/profile`),
+  searchUsers: (params) => api.get('/users/search', { params }),
 };
 
 // Items API
@@ -61,9 +64,9 @@ export const itemsAPI = {
   createItem: (itemData) => api.post('/items', itemData),
   updateItem: (id, itemData) => api.put(`/items/${id}`, itemData),
   deleteItem: (id) => api.delete(`/items/${id}`),
-  getUserItems: (userId) => api.get(`/users/${userId}/items`),
-  searchItems: (query) => api.get('/items/search', { params: { q: query } }),
-  getItemsByCategory: (categoryId) => api.get(`/categories/${categoryId}/items`),
+  getUserItems: (sellerId) => api.get(`/items/seller/${sellerId}`), // Fixed endpoint
+  searchItems: (query) => api.get('/items/search', { params: { keyword: query } }), // Fixed param name
+  getItemsByCategory: (categoryId) => api.get(`/items/filter/category/${categoryId}`), // Fixed endpoint
   uploadItemImages: (itemId, formData) => api.post(`/items/${itemId}/images`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   }),
@@ -73,18 +76,18 @@ export const itemsAPI = {
 export const categoriesAPI = {
   getAllCategories: () => api.get('/categories'),
   getCategoryById: (id) => api.get(`/categories/${id}`),
-  createCategory: (categoryData) => api.post('/categories', categoryData),
-  updateCategory: (id, categoryData) => api.put(`/categories/${id}`, categoryData),
-  deleteCategory: (id) => api.delete(`/categories/${id}`),
+  createCategory: (categoryData) => api.post('/categories/admin', categoryData),
+  updateCategory: (id, categoryData) => api.put(`/categories/admin/${id}`, categoryData),
+  deleteCategory: (id) => api.delete(`/categories/admin/${id}`),
 };
 
 // Transactions API
 export const transactionsAPI = {
   getAllTransactions: () => api.get('/transactions'),
   getTransactionById: (id) => api.get(`/transactions/${id}`),
-  createTransaction: (transactionData) => api.post('/transactions', transactionData),
-  updateTransaction: (id, transactionData) => api.put(`/transactions/${id}`, transactionData),
-  getUserTransactions: (userId) => api.get(`/users/${userId}/transactions`),
+  createTransaction: (transactionData) => api.post('/transactions/create', transactionData),
+  updateTransaction: (id, transactionData) => api.put(`/transactions/${id}/status`, transactionData),
+  getUserTransactions: (userId) => api.get(`/transactions/users/${userId}`),
   confirmPayment: (id) => api.post(`/transactions/${id}/confirm-payment`),
   completeTransaction: (id) => api.post(`/transactions/${id}/complete`),
   cancelTransaction: (id, reason) => api.post(`/transactions/${id}/cancel`, { reason }),
@@ -94,24 +97,24 @@ export const transactionsAPI = {
 export const offersAPI = {
   getAllOffers: () => api.get('/offers'),
   getOfferById: (id) => api.get(`/offers/${id}`),
-  createOffer: (offerData) => api.post('/offers', offerData),
+  createOffer: (offerData) => api.post('/offers/make', offerData),
   updateOffer: (id, offerData) => api.put(`/offers/${id}`, offerData),
   deleteOffer: (id) => api.delete(`/offers/${id}`),
   acceptOffer: (id) => api.post(`/offers/${id}/accept`),
-  rejectOffer: (id) => api.post(`/offers/${id}/reject`),
+  rejectOffer: (id, reason) => api.post(`/offers/${id}/reject`, { reason }),
   counterOffer: (id, counterData) => api.post(`/offers/${id}/counter`, counterData),
-  getUserOffers: (userId) => api.get(`/users/${userId}/offers`),
-  getItemOffers: (itemId) => api.get(`/items/${itemId}/offers`),
+  getUserOffers: (userId) => api.get(`/offers/user/${userId}`),
+  getItemOffers: (itemId) => api.get(`/offers/item/${itemId}`),
 };
 
 // Messages API
 export const messagesAPI = {
   getAllMessages: () => api.get('/messages'),
   getMessageById: (id) => api.get(`/messages/${id}`),
-  sendMessage: (messageData) => api.post('/messages', messageData),
+  sendMessage: (messageData) => api.post('/messages/send', messageData),
   getConversation: (userId1, userId2) => api.get(`/messages/conversation/${userId1}/${userId2}`),
-  getUserMessages: (userId) => api.get(`/users/${userId}/messages`),
-  markAsRead: (id) => api.put(`/messages/${id}/read`),
+  getUserMessages: (userId) => api.get(`/messages/users/${userId}/conversations`),
+  markAsRead: (id) => api.put(`/messages/${id}/mark-read`),
   deleteMessage: (id) => api.delete(`/messages/${id}`),
 };
 
