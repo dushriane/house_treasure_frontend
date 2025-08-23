@@ -4,12 +4,15 @@
   margin-top: 76px; /* Account for fixed navbar */
 }
 
-.not-found-content {
+.not-found-card {
   background: rgba(255, 255, 255, 0.95);
-  padding: 3rem;
   border-radius: 20px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(10px);
+  overflow: hidden;
+}
+
+.not-found-content {
+  position: relative;
 }
 
 .not-found-icon {
@@ -20,7 +23,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 2rem;
+  margin: 0 auto;
   color: white;
   font-size: 3rem;
   animation: pulse 2s infinite;
@@ -38,15 +41,117 @@
   }
 }
 
-.not-found-title {
-  font-size: 6rem;
-  font-weight: 700;
-  color: #333;
-  margin-bottom: 1rem;
+.not-found-number {
+  font-size: 8rem;
+  font-weight: 900;
+  color: #f8f9fa;
+  margin: -20px 0;
   background: linear-gradient(45deg, #667eea, #764ba2);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  line-height: 1;
+}
+
+.not-found-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.not-found-description {
+  font-size: 1.1rem;
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.not-found-suggestions {
+  background: #f8f9fa;
+  border-radius: 15px;
+  padding: 1.5rem;
+  border-left: 4px solid #667eea;
+}
+
+.not-found-suggestions h6 {
+  color: #333;
+  font-weight: 600;
+}
+
+.not-found-suggestions ul li {
+  color: #555;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.not-found-suggestions ul li:last-child {
+  border-bottom: none;
+}
+
+.not-found-actions {
+  margin-top: 2rem;
+}
+
+.not-found-actions .btn {
+  min-width: 120px;
+  border-radius: 10px;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.not-found-actions .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.not-found-help {
+  border-top: 1px solid #e9ecef;
+  padding-top: 1rem;
+}
+
+.not-found-help p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .not-found-number {
+    font-size: 6rem;
+  }
+  
+  .not-found-title {
+    font-size: 2rem;
+  }
+  
+  .not-found-description {
+    font-size: 1rem;
+  }
+  
+  .not-found-content {
+    padding: 2rem 1rem;
+  }
+  
+  .not-found-actions .btn {
+    display: block;
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .not-found-number {
+    font-size: 4rem;
+  }
+  
+  .not-found-icon {
+    width: 80px;
+    height: 80px;
+    font-size: 2rem;
+  }
 }
 
 .not-found-subtitle {

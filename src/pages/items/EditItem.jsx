@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Card, Form, Button, Alert, Spinner, Badge } from 'react-bootstrap';
 import { FiUpload, FiX, FiSave, FiArrowLeft, FiImage, FiTrash2, FiPlus } from 'react-icons/fi';
 import { AuthContext } from '../../contexts/AuthContext';
-import { AlertMessage } from '../../components/common/AlertMessage';
 import './EditItem.css';
 
 const EditItem = () => {
