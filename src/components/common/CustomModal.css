@@ -1,0 +1,311 @@
+.custom-modal .modal-content {
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+.custom-modal-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-bottom: none;
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.custom-modal-title {
+  font-weight: 600;
+  font-size: 1.25rem;
+  margin: 0;
+  color: white;
+}
+
+.custom-close-btn {
+  color: white;
+  border: none;
+  background: none;
+  font-size: 1.2rem;
+  padding: 0.5rem;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  margin-left: auto;
+}
+
+.custom-close-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  transform: scale(1.1);
+}
+
+.custom-close-btn:focus {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
+  outline: none;
+}
+
+.custom-modal-body {
+  padding: 2rem;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #333;
+}
+
+.custom-modal-footer {
+  padding: 1.5rem 2rem;
+  border-top: 1px solid #e9ecef;
+  background: #f8f9fa;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.custom-modal-footer .btn {
+  border-radius: 10px;
+  font-weight: 500;
+  padding: 0.75rem 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.custom-modal-footer .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Size variants */
+.custom-modal .modal-sm .modal-content {
+  border-radius: 12px;
+}
+
+.custom-modal .modal-sm .custom-modal-header {
+  padding: 1rem 1.5rem;
+}
+
+.custom-modal .modal-sm .custom-modal-title {
+  font-size: 1.1rem;
+}
+
+.custom-modal .modal-sm .custom-modal-body {
+  padding: 1.5rem;
+}
+
+.custom-modal .modal-sm .custom-modal-footer {
+  padding: 1rem 1.5rem;
+}
+
+.custom-modal .modal-lg .modal-content,
+.custom-modal .modal-xl .modal-content {
+  border-radius: 20px;
+}
+
+.custom-modal .modal-lg .custom-modal-header,
+.custom-modal .modal-xl .custom-modal-header {
+  padding: 2rem;
+}
+
+.custom-modal .modal-lg .custom-modal-title,
+.custom-modal .modal-xl .custom-modal-title {
+  font-size: 1.5rem;
+}
+
+.custom-modal .modal-lg .custom-modal-body,
+.custom-modal .modal-xl .custom-modal-body {
+  padding: 2.5rem;
+}
+
+.custom-modal .modal-lg .custom-modal-footer,
+.custom-modal .modal-xl .custom-modal-footer {
+  padding: 2rem;
+}
+
+/* Animation styles */
+.custom-modal .modal.fade .modal-dialog {
+  transform: scale(0.9) translateY(-50px);
+  transition: all 0.3s ease;
+}
+
+.custom-modal .modal.show .modal-dialog {
+  transform: scale(1) translateY(0);
+}
+
+/* Backdrop styles */
+.custom-modal .modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5px);
+}
+
+/* Scrollable content */
+.custom-modal .modal-body.scrollable {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.custom-modal .modal-body.scrollable::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-modal .modal-body.scrollable::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.custom-modal .modal-body.scrollable::-webkit-scrollbar-thumb {
+  background: #667eea;
+  border-radius: 3px;
+}
+
+.custom-modal .modal-body.scrollable::-webkit-scrollbar-thumb:hover {
+  background: #5a6fd8;
+}
+
+/* Fullscreen adjustments */
+.custom-modal .modal-fullscreen .modal-content {
+  border-radius: 0;
+}
+
+.custom-modal .modal-fullscreen .custom-modal-header {
+  border-radius: 0;
+}
+
+/* Loading state */
+.custom-modal.loading .modal-content {
+  position: relative;
+}
+
+.custom-modal.loading .modal-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.custom-modal.loading .modal-content::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  transform: translate(-50%, -50%);
+  z-index: 11;
+}
+
+@keyframes spin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Error state */
+.custom-modal.error .custom-modal-header {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+}
+
+/* Success state */
+.custom-modal.success .custom-modal-header {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+/* Warning state */
+.custom-modal.warning .custom-modal-header {
+  background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+  color: #212529;
+}
+
+.custom-modal.warning .custom-close-btn {
+  color: #212529;
+}
+
+.custom-modal.warning .custom-close-btn:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: #212529;
+}
+
+/* Info state */
+.custom-modal.info .custom-modal-header {
+  background: linear-gradient(135deg, #17a2b8 0%, #6f42c1 100%);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .custom-modal .modal-dialog {
+    margin: 1rem;
+  }
+  
+  .custom-modal .custom-modal-header {
+    padding: 1rem 1.5rem;
+  }
+  
+  .custom-modal .custom-modal-title {
+    font-size: 1.1rem;
+  }
+  
+  .custom-modal .custom-modal-body {
+    padding: 1.5rem;
+  }
+  
+  .custom-modal .custom-modal-footer {
+    padding: 1rem 1.5rem;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .custom-modal .custom-modal-footer .btn {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .custom-modal .modal-body.scrollable {
+    max-height: 50vh;
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .custom-modal .modal.fade .modal-dialog {
+    transition: none;
+    transform: none;
+  }
+  
+  .custom-modal .modal-backdrop {
+    backdrop-filter: none;
+  }
+  
+  .custom-modal-footer .btn:hover {
+    transform: none;
+  }
+  
+  .custom-close-btn:hover {
+    transform: none;
+  }
+}
+
+/* Focus management */
+.custom-modal .modal-content:focus {
+  outline: none;
+}
+
+.custom-modal .custom-close-btn:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.8);
+  outline-offset: 2px;
+}
+
+.custom-modal .custom-modal-footer .btn:focus-visible {
+  outline: 2px solid;
+  outline-offset: 2px;
+}
