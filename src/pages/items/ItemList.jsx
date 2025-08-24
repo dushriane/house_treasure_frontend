@@ -7,7 +7,6 @@ import {
   FaFilter, 
   FaSortAmountDown, 
   FaSortAmountUp, 
-  FaGrid3X3, 
   FaList, 
   FaMapMarkerAlt,
   FaTimes
@@ -274,7 +273,7 @@ const ItemList = () => {
                   size="sm"
                   onClick={() => setViewMode('grid')}
                 >
-                  <FaGrid3X3 />
+                  
                 </Button>
                 <Button
                   variant={viewMode === 'list' ? 'primary' : 'outline-primary'}

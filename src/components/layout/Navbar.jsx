@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Navbar, Nav, Container, Button, Dropdown, Form, InputGroup } from 'react-bootstrap';
 import { useAuth } from '../../contexts/AuthContext';
-import { FaSearch, FaUser, FaSignOutAlt, FaHome, FaPlus, FaComments, FaExchangeAlt, FaHandshake } from 'react-icons/fa';
+import { FaSearch, FaUser, FaSignOutAlt, FaHome, FaPlus, FaComments, FaExchangeAlt, FaHandshake, FaList } from 'react-icons/fa';
 import './Navbar.css';
 
 const NavigationBar = () => {
@@ -43,6 +43,7 @@ const NavigationBar = () => {
               to="/" 
               className={isActive('/') ? 'active' : ''}
             >
+              <FaHome className="me-1" />
               Home
             </Nav.Link>
             <Nav.Link 
@@ -50,14 +51,15 @@ const NavigationBar = () => {
               to="/items" 
               className={isActive('/items') ? 'active' : ''}
             >
+              <FaList className="me-1" />
               Browse Items
             </Nav.Link>
             {user && (
               <>
                 <Nav.Link 
                   as={Link} 
-                  to="/create-item" 
-                  className={isActive('/create-item') ? 'active' : ''}
+                  to="/items/create" 
+                  className={isActive('/items/create') ? 'active' : ''}
                 >
                   <FaPlus className="me-1" />
                   Sell Item

@@ -21,6 +21,8 @@ import Messages from './pages/Messages';
 import Transactions from './pages/Transactions';
 import Offers from './pages/Offers';
 import NotFound from './pages/NotFound';
+import ItemList from './pages/items/ItemList';
+import ItemDetails from './pages/items/ItemDetails';
 
 type RouteProps = {
   children: React.ReactNode;
@@ -48,8 +50,6 @@ const PublicRoute: React.FC<RouteProps> = ({ children }) => {
 };
 
 function AppContent() {
-  // const { user } = useAuth();
-
   return (
     <Router>
       <div className="App">
@@ -59,6 +59,15 @@ function AppContent() {
             {/* Public Routes */}
             <Route path="/" element={<Home />} />
 
+            {/* Items Routes - Public browsing */}
+            <Route 
+              path="/items" 
+              element={<ItemList />} 
+            />
+            <Route 
+              path="/items/:id" 
+              element={<ItemDetails />} 
+            />
 
             {/* Auth Routes */}
             <Route 
@@ -96,14 +105,33 @@ function AppContent() {
               } 
             />
 
+            {/* Item Management Routes - Protected */}
             <Route 
-              path="/edit-item/:id" 
+              path="/items/create" 
               element={
                 <ProtectedRoute>
                   <EditItem />
                 </ProtectedRoute>
               } 
             />
+            <Route 
+              path="/items/:id/edit" 
+              element={
+                <ProtectedRoute>
+                  <EditItem />
+                </ProtectedRoute>
+              } 
+            />
+
+            <Route 
+              path="/my-items" 
+              element={
+                <ProtectedRoute>
+                  <ItemList />
+                </ProtectedRoute>
+              } 
+            />
+            
             <Route 
               path="/messages" 
               element={
