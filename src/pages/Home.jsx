@@ -69,7 +69,7 @@ const Home = () => {
               </div>
             </Col>
             <Col lg={6} className="hero-image">
-              <div className="hero-image-container">
+              <div className="/householdone.jpg">
                 <img 
                   src="/images/hero-illustration.jpg" 
                   alt="House Treasures" 
