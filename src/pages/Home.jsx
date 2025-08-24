@@ -53,7 +53,7 @@ const Home = () => {
               </p>
               <div className="hero-buttons">
                 {user ? (
-                  <Button as={Link} to="/create-item" size="lg" className="btn-primary-custom me-3">
+                  <Button as={Link} to="/items/create" size="lg" className="btn-primary-custom me-3">
                     <FaPlus className="me-2" />
                     Sell Your Item
                   </Button>

@@ -9,7 +9,7 @@
   border-right: 1px solid #e9ecef;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
-  z-index: 1050;
+  /* z-index: 1050; */
   overflow-y: auto;
   /* padding-top: 76px; /* Account for fixed navbar */
   color: white;
