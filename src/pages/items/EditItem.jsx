@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Container, Row, Col, Card, Form, Button, Alert, Spinner, Badge } from 'react-bootstrap';
+import { Container, Row, Col, Card, Form, Button, Spinner, Badge } from 'react-bootstrap';
 import { FiUpload, FiX, FiSave, FiArrowLeft, FiImage, FiTrash2, FiPlus } from 'react-icons/fi';
 import { AuthContext } from '../../contexts/AuthContext';
 import './EditItem.css';
@@ -26,7 +26,7 @@ const EditItem = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [categories, setCategories] = useState([]);
+  //const [categories, setCategories] = useState([]);
   const [existingImages, setExistingImages] = useState([]);
   const [newImages, setNewImages] = useState([]);
   const [previewImages, setPreviewImages] = useState([]);
@@ -46,12 +46,28 @@ const EditItem = () => {
     { value: 'poor', label: 'Poor' }
   ];
 
+  // Hardcoded categories
+  const categories = [
+    { id: 'electronics', name: 'Electronics' },
+    { id: 'furniture', name: 'Furniture' },
+    { id: 'clothing', name: 'Clothing & Fashion' },
+    { id: 'books', name: 'Books & Media' },
+    { id: 'toys', name: 'Toys & Games' },
+    { id: 'art-crafts', name: 'Art & Crafts' },
+    { id: 'jewelry', name: 'Jewelry & Accessories' },
+    { id: 'musical', name: 'Musical Instruments' },
+    { id: 'collectibles', name: 'Collectibles & Antiques' },
+    { id: 'health-beauty', name: 'Health & Beauty' },
+    { id: 'office', name: 'Office Supplies' },
+    { id: 'other', name: 'Other' }
+  ];
+
   // Load item data and categories
   useEffect(() => {
     if (id) {
       loadItemData();
     }
-    loadCategories();
+    //loadCategories();
   }, [id]);
 
   const loadItemData = async () => {
@@ -59,7 +75,7 @@ const EditItem = () => {
     setError('');
     
     try {
-      const response = await fetch(`/api/items/${id}`, {
+      const response = await fetch(`http://localhost:8080/api/items/${id}`, {
         headers: {
           'Authorization': `Bearer ${user?.token}`
         }
@@ -81,7 +97,7 @@ const EditItem = () => {
         title: data.title || '',
         description: data.description || '',
         price: data.price?.toString() || '',
-        category: data.category?.id || '',
+        category: data.category?.id || data.category || '',
         condition: data.condition || '',
         location: data.location || '',
         tags: data.tags || []
@@ -96,17 +112,17 @@ const EditItem = () => {
     }
   };
 
-  const loadCategories = async () => {
-    try {
-      const response = await fetch('/api/categories');
-      if (response.ok) {
-        const data = await response.json();
-        setCategories(data);
-      }
-    } catch (err) {
-      console.error('Failed to load categories:', err);
-    }
-  };
+  // const loadCategories = async () => {
+  //   try {
+  //     const response = await fetch('/api/categories');
+  //     if (response.ok) {
+  //       const data = await response.json();
+  //       setCategories(data);
+  //     }
+  //   } catch (err) {
+  //     console.error('Failed to load categories:', err);
+  //   }
+  // };
 
   // Form handlers
   const handleInputChange = (e) => {
@@ -214,6 +230,15 @@ const EditItem = () => {
     const maxImages = 5;
     const maxSize = 5 * 1024 * 1024; // 5MB
     
+    // Supported image types
+    const supportedTypes = [
+      'image/jpeg',
+      'image/jpg', 
+      'image/png',
+      'image/gif',
+      'image/webp'
+    ];
+
     if (existingImages.length + newImages.length + files.length > maxImages) {
       setError(`You can only upload up to ${maxImages} images`);
       return;
@@ -228,8 +253,14 @@ const EditItem = () => {
         return;
       }
 
-      if (!file.type.startsWith('image/')) {
-        setError(`${file.name} is not a valid image file`);
+      // if (!file.type.startsWith('image/')) {
+      //   setError(`${file.name} is not a valid image file`);
+      //   return;
+      // }
+
+      // Updated validation for specific image types
+      if (!supportedTypes.includes(file.type.toLowerCase())) {
+        setError(`${file.name} is not a supported image format. Please use JPEG, PNG, GIF, or WebP.`);
         return;
       }
 
@@ -307,27 +338,63 @@ const EditItem = () => {
 
     try {
       const submitData = new FormData();
+
+        // Validate and add each field
+      if (!formData.title?.trim()) {
+        throw new Error('Title is required');
+      }
+      if (!formData.description?.trim()) {
+        throw new Error('Description is required');
+      }
+      if (!formData.price || isNaN(parseFloat(formData.price))) {
+        throw new Error('Valid price is required');
+      }
+      if (!formData.category) {
+        throw new Error('Category is required');
+      }
+      if (!formData.condition) {
+        throw new Error('Condition is required');
+      }
+      if (!formData.location?.trim()) {
+        throw new Error('Location is required');
+      }
+
+      // Add form fields to FormData
+      submitData.append('title', formData.title.trim());
+      submitData.append('description', formData.description.trim());
+      submitData.append('price', parseFloat(formData.price).toString());
+      submitData.append('category', formData.category);
+      submitData.append('condition', formData.condition);
+      submitData.append('location', formData.location.trim());
       
-      // Add form fields
-      Object.keys(formData).forEach(key => {
-        if (key === 'tags') {
-          submitData.append('tags', JSON.stringify(formData.tags));
-        } else {
-          submitData.append(key, formData[key]);
-        }
-      });
+      // // Add form fields
+      // Object.keys(formData).forEach(key => {
+      //   if (key === 'tags') {
+      //     submitData.append('tags', JSON.stringify(formData.tags));
+      //   } else {
+      //     submitData.append(key, formData[key]);
+      //   }
+      // });
       
+      // Add tags as JSON string
+      if (formData.tags && formData.tags.length > 0) {
+        submitData.append('tags', JSON.stringify(formData.tags));
+        console.log('Adding tags:', JSON.stringify(formData.tags));
+      }
       // Add new images
-      newImages.forEach((file, index) => {
-        submitData.append('newImages', file);
-      });
+      if (newImages && newImages.length > 0) {
+        newImages.forEach((file, index) => {
+          console.log(`Adding image ${index}:`, file.name, file.size, file.type);
+          submitData.append('newImages', file);
+        });
+      }
       
       // Add deleted image IDs
       if (deletedImages.length > 0) {
         submitData.append('deletedImages', JSON.stringify(deletedImages));
       }
 
-      const url = id ? `/api/items/${id}` : '/api/items';
+      const url = id ? `http://localhost:8080/api/items/${id}` : 'http://localhost:8080/api/items';
       const method = id ? 'PUT' : 'POST';
       
       const response = await fetch(url, {
@@ -338,9 +405,29 @@ const EditItem = () => {
         body: submitData
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to save item');
+      // if (!response.ok) {
+      //   const errorData = await response.json();
+      //   throw new Error(errorData.message || 'Failed to save item');
+      // }
+
+        if (!response.ok) {
+        let errorMessage;
+        const contentType = response.headers.get('content-type');
+        
+        if (contentType && contentType.includes('application/json')) {
+          try {
+            const errorData = await response.json();
+            errorMessage = errorData.message || errorData.error || `HTTP ${response.status}: ${response.statusText}`;
+          } catch (e) {
+            errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+          }
+        } else {
+          const errorText = await response.text();
+          errorMessage = errorText || `HTTP ${response.status}: ${response.statusText}`;
+        }
+        
+        console.error('Error response:', errorMessage);
+        throw new Error(errorMessage);
       }
 
       const savedItem = await response.json();
@@ -384,9 +471,6 @@ const EditItem = () => {
           {id ? 'Edit Item' : 'Create New Item'}
         </h2>
       </div>
-
-      {error && <AlertMessage type="danger" message={error} />}
-      {success && <AlertMessage type="success" message={success} />}
 
       <Row>
         <Col lg={8}>
@@ -597,7 +681,7 @@ const EditItem = () => {
                         <input
                           type="file"
                           multiple
-                          accept="image/*"
+                          accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
                           onChange={handleImageUpload}
                           id="image-upload"
                           className="d-none"
@@ -605,7 +689,7 @@ const EditItem = () => {
                         <label htmlFor="image-upload" className="upload-label">
                           <FiUpload className="upload-icon" />
                           <span>Choose Images</span>
-                          <small>JPG, PNG, GIF up to 5MB each</small>
+                          <small>JPEG, JPG, PNG, GIF up to 5MB each</small>
                         </label>
                       </div>
                     )}
