@@ -31,7 +31,6 @@ const DashboardSidebar = ({ isOpen, onToggle }) => {
   const [expandedSections, setExpandedSections] = useState({
     selling: true,
     buying: true,
-    marketplace: false
   });
 
   const toggleSection = (section) => {
