@@ -62,24 +62,12 @@ const DashboardSidebar = ({ isOpen, onToggle }) => {
         badge: null
       },
       {
-        path: '/create-item',
+        path: '/items/create',
         icon: FaPlus,
-        label: 'List New Item',
+        label: 'List A New Item',
         badge: null,
         highlight: true
       },
-      {
-        path: '/dashboard/sales',
-        icon: FaMoneyBillWave,
-        label: 'Sales & Revenue',
-        badge: null
-      },
-      {
-        path: '/dashboard/offers-received',
-        icon: FaHandshake,
-        label: 'Offers Received',
-        badge: 3 // This would come from props or state
-      }
     ],
     buying: [
       {
@@ -95,30 +83,10 @@ const DashboardSidebar = ({ isOpen, onToggle }) => {
         badge: null
       },
       {
-        path: '/dashboard/offers-sent',
-        icon: FaHandshake,
-        label: 'Offers Sent',
-        badge: 2
-      },
-      {
-        path: '/dashboard/watchlist',
+        path: '/dashboard/wishlist',
         icon: FaHeart,
-        label: 'Watchlist',
+        label: 'Wishlist',
         badge: 8
-      }
-    ],
-    marketplace: [
-      {
-        path: '/dashboard/analytics',
-        icon: FaChartLine,
-        label: 'Market Analytics',
-        badge: null
-      },
-      {
-        path: '/dashboard/trending',
-        icon: FaEye,
-        label: 'Trending Items',
-        badge: null
       }
     ],
     communication: [
@@ -135,9 +103,9 @@ const DashboardSidebar = ({ isOpen, onToggle }) => {
         badge: null
       },
       {
-        path: '/dashboard/history',
-        icon: FaHistory,
-        label: 'Activity History',
+        path: '/offers',
+        icon: FaHandshake,
+        label: 'Offers',
         badge: null
       }
     ],
@@ -146,12 +114,6 @@ const DashboardSidebar = ({ isOpen, onToggle }) => {
         path: '/profile',
         icon: FaUser,
         label: 'Profile Settings',
-        badge: null
-      },
-      {
-        path: '/dashboard/settings',
-        icon: FaCog,
-        label: 'Preferences',
         badge: null
       }
     ]
@@ -244,18 +206,8 @@ const DashboardSidebar = ({ isOpen, onToggle }) => {
           {/* Buying Section */}
           {renderSection('Buying', menuItems.buying, 'buying')}
 
-          {/* Marketplace Section */}
-          {renderSection('Marketplace', menuItems.marketplace, 'marketplace')}
-
           {/* Communication Section */}
-          <div className="sidebar-section">
-            <div className="sidebar-section-header">
-              <span className="section-title">Communication</span>
-            </div>
-            <Nav className="sidebar-nav">
-              {menuItems.communication.map(renderNavItem)}
-            </Nav>
-          </div>
+          {renderSection('Communication', menuItems.communication, 'communication')}
 
           {/* Account Section */}
           <div className="sidebar-section">
