@@ -212,7 +212,7 @@ const Dashboard = () => {
             </Card.Header>
             <Card.Body>
               <div className="dashboard-actions">
-                <Button as={Link} to="/create-item" variant="primary" className="action-btn">
+                <Button as={Link} to="/items/create" variant="primary" className="action-btn">
                   <FaPlus className="me-2" />
                   List New Item
                 </Button>
@@ -263,7 +263,7 @@ const Dashboard = () => {
                         <Button as={Link} to={`/items/${item.id}`} size="sm" variant="outline-primary">
                           <FaEye />
                         </Button>
-                        <Button as={Link} to={`/edit-item/${item.id}`} size="sm" variant="outline-secondary">
+                        <Button as={Link} to={`/items/${item.id}/edit`} size="sm" variant="outline-secondary">
                           <FaEdit />
                         </Button>
                       </div>
@@ -275,7 +275,7 @@ const Dashboard = () => {
                   <FaBox className="dashboard-empty-icon" />
                   <h6 className="dashboard-empty-title">No items yet</h6>
                   <p className="dashboard-empty-text">Start by listing your first item!</p>
-                  <Button as={Link} to="/create-item" variant="primary">
+                  <Button as={Link} to="/items/create" variant="primary">
                     <FaPlus className="me-2" />
                     List Your First Item
                   </Button>
