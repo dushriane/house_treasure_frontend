@@ -6,6 +6,7 @@ import { FaUser, FaEdit, FaSave, FaTimes, FaBox, FaExchangeAlt, FaEye, FaMapMark
 import { DashboardLayout, LoadingSpinner, ItemCard } from '../components';
 import './Profile.css';
 
+
 const Profile = () => {
   const { user, updateUser } = useAuth();
   const [profile, setProfile] = useState({
@@ -131,7 +132,7 @@ const Profile = () => {
 
   return (
     <DashboardLayout title="User Profile">
-      {/* Success/Error Messages */}
+      {/*Success/Error Messages
       {message && (
         <Row className="mb-4">
           <Col>
@@ -154,7 +155,7 @@ const Profile = () => {
             />
           </Col>
         </Row>
-      )}
+      )}*/}
 
       <Row>
         {/* Profile Header */}
