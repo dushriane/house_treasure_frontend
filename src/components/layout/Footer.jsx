@@ -58,7 +58,7 @@ const Footer = () => {
                 <li><Link to="/">Home</Link></li>
                 <li><Link to="/items">Browse Items</Link></li>
                 <li><Link to="/create-item">Sell Item</Link></li>
-                <li><Link to="/about">About Us</Link></li>
+                {/* <li><Link to="/about">About Us</Link></li> */}
               </ul>
             </div>
           </Col>
@@ -111,7 +111,7 @@ const Footer = () => {
         <Row className="border-top pt-4">
           <Col className="text-center">
             <p className="footer-bottom">
-              © 2024 House Treasures. All rights reserved. 
+              © 2025 House Treasures. All rights reserved. 
               Making Rwanda's unused items valuable again.
             </p>
           </Col>

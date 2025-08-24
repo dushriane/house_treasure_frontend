@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Form, Button, Card, Tab, Tabs, Badge } from 'react-bootstrap';
 import { useAuth } from '../contexts/AuthContext';
-import { userAPI, itemsAPI, transactionsAPI } from '../services/api.js';
+import { usersAPI, itemsAPI, transactionsAPI } from '../services/api.js';
 import { FaUser, FaEdit, FaSave, FaTimes, FaBox, FaExchangeAlt, FaEye, FaMapMarkerAlt, FaPhone, FaEnvelope, FaCalendarAlt } from 'react-icons/fa';
-import { DashboardLayout, LoadingSpinner, AlertMessage, ItemCard } from '../components';
+import { DashboardLayout, LoadingSpinner, ItemCard } from '../components';
 import './Profile.css';
 
 const Profile = () => {

@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { offersAPI } from '../services/api.js';
 import { FaHandshake, FaEye, FaCheck, FaTimes, FaClock, FaCheckCircle, FaTimesCircle, FaFilter } from 'react-icons/fa';
-import { DashboardLayout, LoadingSpinner, AlertMessage } from '../components';
+import { DashboardLayout, LoadingSpinner } from '../components';
 import './Offers.css';
 
 const Offers = () => {

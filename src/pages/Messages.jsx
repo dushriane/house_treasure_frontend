@@ -3,7 +3,7 @@ import { Container, Row, Col, Form, Button, Badge, Alert, Card, InputGroup } fro
 import { useAuth } from '../contexts/AuthContext';
 import { messagesAPI } from '../services/api.js';
 import { FaComments, FaPaperPlane, FaUser, FaSearch, FaClock, FaCheck, FaCheckDouble } from 'react-icons/fa';
-import { DashboardLayout, LoadingSpinner, AlertMessage } from '../components';
+import { DashboardLayout, LoadingSpinner } from '../components';
 import './Messages.css';
 
 const Messages = () => {

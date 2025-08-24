@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { authAPI } from '../services/api.js';
-import toast from 'react-hot-toast';
 
 //create the context
 const AuthContext = createContext();
@@ -31,9 +30,13 @@ export const AuthProvider = ({ children }) => {
   const login = async (credentials) => {
     try {
       setLoading(true);
+      console.log('Attempting login with:', credentials);
       const response = await authAPI.login(credentials);
-      const { user: userData, token } = response.data;
+      console.log('Login response:', response.data);
       
+      const userData = response.data.user;
+      const token = response.data.token;
+
       // Save to localStorage
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(userData));
@@ -45,6 +48,7 @@ export const AuthProvider = ({ children }) => {
       return { success: true, user: userData };
     } catch (error) {
       console.error('Login error:', error);
+      console.error('Error response:', error.response?.data);
       return { 
         success: false, 
         error: error.response?.data?.message || 'Login failed' 
@@ -57,8 +61,12 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       setLoading(true);
+      console.log('Attempting registration with:', userData);
       const response = await authAPI.register(userData);
-      const { user: newUser, token } = response.data;
+      console.log('Registration response:', response.data);
+      
+      const newUser = response.data.user;
+      const token = response.data.token;
       
       // Save to localStorage
       localStorage.setItem('token', token);
@@ -71,6 +79,7 @@ export const AuthProvider = ({ children }) => {
       return { success: true, user: newUser };
     } catch (error) {
       console.error('Registration error:', error);
+      console.error('Error response:', error.response?.data);
       return { 
         success: false, 
         error: error.response?.data?.message || 'Registration failed' 
@@ -124,4 +133,5 @@ export const useAuth = () => {
   return context;
 };
 
+export {AuthContext}
 export default AuthProvider;

@@ -53,6 +53,13 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Check if passwords match
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+  
     setLoading(true);
     setError('');
 
@@ -66,9 +73,10 @@ const Register = () => {
       const { confirmPassword, ...registrationData } = formData;
       const result = await register(registrationData);
       if (result.success) {
+        console.log('Registration successful:', result.user);
         navigate('/dashboard');
       } else {
-        setError(result.error);
+        setError(result.error || 'Registration failed');
       }
     } catch (error) {
       setError('An unexpected error occurred. Please try again.');
