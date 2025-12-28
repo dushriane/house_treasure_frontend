@@ -30,6 +30,9 @@ const ItemList = () => {
     minPrice: searchParams.get('minPrice') || '',
     maxPrice: searchParams.get('maxPrice') || '',
     condition: searchParams.get('condition') || '',
+    province: searchParams.get('province') || '',
+    district: searchParams.get('district') || '',
+    sector: searchParams.get('sector') || '',
     location: searchParams.get('location') || '',
     sortBy: searchParams.get('sortBy') || 'createdAt',
     sortOrder: searchParams.get('sortOrder') || 'desc'
@@ -137,6 +140,9 @@ const ItemList = () => {
       minPrice: '',
       maxPrice: '',
       condition: '',
+      province: '',
+      district: '',
+      sector: '',
       location: '',
       sortBy: 'createdAt',
       sortOrder: 'desc'
@@ -168,6 +174,22 @@ const ItemList = () => {
     { value: 'FAIR', label: 'Fair' },
     { value: 'POOR', label: 'Poor' }
   ];
+
+  const provinceOptions = [
+    { value: 'Kigali', label: 'Kigali City' },
+    { value: 'Northern', label: 'Northern Province' },
+    { value: 'Southern', label: 'Southern Province' },
+    { value: 'Eastern', label: 'Eastern Province' },
+    { value: 'Western', label: 'Western Province' }
+  ];
+
+  const districtOptions = {
+    'Kigali': ['Gasabo', 'Kicukiro', 'Nyarugenge'],
+    'Northern': ['Gicumbi', 'Rulindo', 'Gakenke', 'Musanze', 'Burera'],
+    'Southern': ['Nyanza', 'Gisagara', 'Nyaruguru', 'Huye', 'Nyamagabe', 'Ruhango', 'Muhanga', 'Kamonyi'],
+    'Eastern': ['Rwamagana', 'Nyagatare', 'Gatsibo', 'Kayonza', 'Kirehe', 'Ngoma', 'Bugesera'],
+    'Western': ['Karongi', 'Rutsiro', 'Rubavu', 'Nyabihu', 'Ngororero', 'Rusizi', 'Nyamasheke']
+  };
 
   const getActiveFiltersCount = () => {
     return Object.values(filters).filter(value => 
@@ -356,6 +378,69 @@ const ItemList = () => {
                             {option.label}
                           </option>
                         ))}
+                      </Form.Select>
+                      <Button
+                        variant="outline-secondary"
+                        size="sm"
+                        onClick={() => handleFilterChange('sortOrder', filters.sortOrder === 'asc' ? 'desc' : 'asc')}
+                      >
+                        {filters.sortOrder === 'asc' ? <FaSortAmountUp /> : <FaSortAmountDown />}
+                      </Button>
+                    </div>
+                  </Col>
+                </Row>
+                
+                {/* Location Filters */}
+                <Row className="mt-2">
+                  <Col md={4} className="mb-3">
+                    <Form.Label>
+                      <FaMapMarkerAlt className="me-1" />
+                      Province
+                    </Form.Label>
+                    <Form.Select
+                      value={filters.province}
+                      onChange={(e) => {
+                        handleFilterChange('province', e.target.value);
+                        handleFilterChange('district', ''); // Reset district when province changes
+                      }}
+                    >
+                      <option value="">All Provinces</option>
+                      {provinceOptions.map(option => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </Form.Select>
+                  </Col>
+                  
+                  <Col md={4} className="mb-3">
+                    <Form.Label>District</Form.Label>
+                    <Form.Select
+                      value={filters.district}
+                      onChange={(e) => handleFilterChange('district', e.target.value)}
+                      disabled={!filters.province}
+                    >
+                      <option value="">All Districts</option>
+                      {filters.province && districtOptions[filters.province]?.map(district => (
+                        <option key={district} value={district}>
+                          {district}
+                        </option>
+                      ))}
+                    </Form.Select>
+                  </Col>
+                  
+                  <Col md={4} className="mb-3">
+                    <Form.Label>Sector</Form.Label>
+                    <Form.Control
+                      type="text"
+                      placeholder="Enter sector"
+                      value={filters.sector}
+                      onChange={(e) => handleFilterChange('sector', e.target.value)}
+                    />
+                  </Col>
+                </Row>
+                
+                <Row>
                       </Form.Select>
                       <Button
                         variant="outline-secondary"

@@ -3,7 +3,7 @@ import { Container, Row, Col, Form, Button, Card, Tab, Tabs, Badge } from 'react
 import { useAuth } from '../contexts/AuthContext';
 import { usersAPI, itemsAPI, transactionsAPI } from '../services/api.js';
 import { FaUser, FaEdit, FaSave, FaTimes, FaBox, FaExchangeAlt, FaEye, FaMapMarkerAlt, FaPhone, FaEnvelope, FaCalendarAlt } from 'react-icons/fa';
-import { DashboardLayout, LoadingSpinner, ItemCard } from '../components';
+import { DashboardLayout, LoadingSpinner, ItemCard, AlertMessage } from '../components';
 import './Profile.css';
 
 
@@ -33,6 +33,7 @@ const Profile = () => {
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [activeTab, setActiveTab] = useState('profile');
+  const [validationErrors, setValidationErrors] = useState({});
 
   useEffect(() => {
     fetchProfileData();
@@ -92,23 +93,61 @@ const Profile = () => {
       ...prev,
       [name]: value,
     }));
+    // Clear validation error for this field
+    if (validationErrors[name]) {
+      setValidationErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+  };
+
+  const validateForm = () => {
+    const errors = {};
+    
+    if (!profile.firstName || profile.firstName.trim().length < 2) {
+      errors.firstName = 'First name must be at least 2 characters';
+    }
+    
+    if (!profile.lastName || profile.lastName.trim().length < 2) {
+      errors.lastName = 'Last name must be at least 2 characters';
+    }
+    
+    if (profile.phoneNumber && !/^(\+?250|0)?[7][0-9]{8}$/.test(profile.phoneNumber.replace(/\s/g, ''))) {
+      errors.phoneNumber = 'Please enter a valid Rwandan phone number';
+    }
+    
+    if (profile.bio && profile.bio.length > 500) {
+      errors.bio = 'Bio must not exceed 500 characters';
+    }
+    
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      setError('Please fix the errors in the form');
+      return;
+    }
+    
     setSaving(true);
     setError('');
     setMessage('');
 
     try {
-      const response = await userAPI.updateProfile(user.id, profile);
-      updateUser(response.data); // Update user context
+      const response = await usersAPI.updateProfile(user.id, profile);
+      if (updateUser) {
+        updateUser(response.data); // Update user context
+      }
       setMessage('Profile updated successfully!');
       setEditing(false);
       setTimeout(() => setMessage(''), 5000);
     } catch (err) {
       console.error('Error updating profile:', err);
-      setError('Failed to update profile. Please try again.');
+      setError(err.response?.data?.message || 'Failed to update profile. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -132,7 +171,7 @@ const Profile = () => {
 
   return (
     <DashboardLayout title="User Profile">
-      {/*Success/Error Messages
+      {/* Success/Error Messages */}
       {message && (
         <Row className="mb-4">
           <Col>
@@ -155,7 +194,7 @@ const Profile = () => {
             />
           </Col>
         </Row>
-      )}*/}
+      )}
 
       <Row>
         {/* Profile Header */}
@@ -275,43 +314,11 @@ const Profile = () => {
                     <Form onSubmit={handleSubmit}>
                       <Row>
                         <Col md={6}>
-                          <Form.Group className="mb-3">
-                            <Form.Label>Username</Form.Label>
-                            <Form.Control
-                              type="text"
-                              name="username"
-                              value={profile.username}
-                              disabled
-                              className="form-control-readonly"
+                          <F  isInvalid={!!validationErrors.firstName}
                             />
-                          </Form.Group>
-                        </Col>
-                        <Col md={6}>
-                          <Form.Group className="mb-3">
-                            <Form.Label>Email</Form.Label>
-                            <Form.Control
-                              type="email"
-                              name="email"
-                              value={profile.email}
-                              disabled
-                              className="form-control-readonly"
-                            />
-                          </Form.Group>
-                        </Col>
-                      </Row>
-
-                      <Row>
-                        <Col md={6}>
-                          <Form.Group className="mb-3">
-                            <Form.Label>First Name</Form.Label>
-                            <Form.Control
-                              type="text"
-                              name="firstName"
-                              value={profile.firstName}
-                              onChange={handleChange}
-                              disabled={!editing}
-                              required
-                            />
+                            <Form.Control.Feedback type="invalid">
+                              {validationErrors.firstName}
+                            </Form.Control.Feedback>
                           </Form.Group>
                         </Col>
                         <Col md={6}>
@@ -324,7 +331,63 @@ const Profile = () => {
                               onChange={handleChange}
                               disabled={!editing}
                               required
+                              isInvalid={!!validationErrors.lastName}
                             />
+                            <Form.Control.Feedback type="invalid">
+                              {validationErrors.lastName}
+                            </Form.Control.FeedbackForm.Label>Email</Form.Label>
+                            <Form.Control
+                              type="email"
+                              name="email"
+                              value={profile.email}
+                              disabled
+                              className="form-control-readonly"
+                            />
+                          </  isInvalid={!!validationErrors.phoneNumber}
+                            />
+                            <Form.Control.Feedback type="invalid">
+                              {validationErrors.phoneNumber}
+                            </Form.Control.Feedback>
+                          </Form.Group>
+                        </Col>
+                        <Col md={6}>
+                          <Form.Group className="mb-3">
+                            <Form.Label>Location</Form.Label>
+                            <Form.Control
+                              type="text"
+                              name="location"
+                              value={profile.location}
+                              onChange={handleChange}
+                              disabled={!editing}
+                              placeholder="City, District"
+                            />
+                          </Form.Group>
+                        </Col>
+                      </Row>
+
+                      <Form.Group className="mb-3">
+                        <Form.Label>
+                          Bio 
+                          {editing && (
+                            <span className="text-muted small ms-2">
+                              ({profile.bio?.length || 0}/500)
+                            </span>
+                          )}
+                        </Form.Label>
+                        <Form.Control
+                          as="textarea"
+                          rows={3}
+                          name="bio"
+                          value={profile.bio}
+                          onChange={handleChange}
+                          disabled={!editing}
+                          placeholder="Tell us about yourself..."
+                          maxLength={500}
+                          isInvalid={!!validationErrors.bio}
+                        />
+                        <Form.Control.Feedback type="invalid">
+                          {validationErrors.bio}
+                        </Form.Control.Feedback   />
                           </Form.Group>
                         </Col>
                       </Row>

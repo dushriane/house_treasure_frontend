@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { transactionsAPI } from '../services/api.js';
 import { FaExchangeAlt, FaEye, FaFilter, FaMoneyBillWave, FaClock, FaCheckCircle, FaTimesCircle, FaCheck, FaBan } from 'react-icons/fa';
-import { DashboardLayout, LoadingSpinner, AlertMessage } from '../components';
+import { DashboardLayout, LoadingSpinner, AlertMessage, PaymentModal } from '../components';
 import './Transactions.css';
 
 const Transactions = () => {
@@ -19,6 +19,7 @@ const Transactions = () => {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [cancelReason, setCancelReason] = useState('');
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
 
   const filterOptions = [
     { key: 'all', label: 'All', icon: FaExchangeAlt },
@@ -59,15 +60,21 @@ const Transactions = () => {
   };
 
   const handleConfirmPayment = async (transactionId) => {
+    const transaction = transactions.find(t => t.id === transactionId);
+    setSelectedTransaction(transaction);
+    setShowPaymentModal(true);
+  };
+
+  const handlePaymentConfirm = async (paymentData) => {
     try {
-      setActionLoading(transactionId);
-      await transactionsAPI.confirmPayment(transactionId);
+      setActionLoading(paymentData.transactionId);
+      await transactionsAPI.confirmPayment(paymentData.transactionId);
       setSuccessMsg('Payment confirmed successfully!');
       await fetchTransactions();
       setTimeout(() => setSuccessMsg(''), 3000);
     } catch (err) {
       console.error('Error confirming payment:', err);
-      setError('Failed to confirm payment. Please try again.');
+      throw new Error('Failed to confirm payment. Please try again.');
     } finally {
       setActionLoading(null);
     }
@@ -388,6 +395,14 @@ const Transactions = () => {
           </Button>
         </Modal.Footer>
       </Modal>
+
+      {/* Payment Modal */}
+      <PaymentModal
+        show={showPaymentModal}
+        onHide={() => setShowPaymentModal(false)}
+        transaction={selectedTransaction}
+        onPaymentConfirm={handlePaymentConfirm}
+      />
     </DashboardLayout>
   );
 };

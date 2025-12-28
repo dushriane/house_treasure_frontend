@@ -25,6 +25,10 @@ const SellItem = () => {
     minimumPrice: "",
   });
   const [message, setMessage] = useState("");
+  const [imagePreviews, setImagePreviews] = useState([]);
+  const [receiptPreview, setReceiptPreview] = useState(null);
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -36,24 +40,116 @@ const SellItem = () => {
 
   // Handle single file (original receipt)
   const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData((prevData) => ({
+        ...prevData,
+        originalReceipt: file,
+      }));
+      
+      // Create preview for receipt
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setReceiptPreview({
+          url: reader.result,
+          name: file.name,
+          type: file.type
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeReceipt = () => {
     setFormData((prevData) => ({
       ...prevData,
-      originalReceipt: e.target.files[0],
+      originalReceipt: null,
     }));
+    setReceiptPreview(null);
   };
 
   // Handle multiple images
   const handleImagesUpload = (e) => {
+    const files = Array.from(e.target.files);
+    
+    if (files.length > 10) {
+      setErrors(prev => ({ ...prev, images: 'Maximum 10 images allowed' }));
+      return;
+    }
+    
     setFormData((prevData) => ({
       ...prevData,
-      images: Array.from(e.target.files),
+      images: files,
     }));
+    
+    // Create previews
+    const previews = [];
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        previews.push({
+          url: reader.result,
+          name: file.name
+        });
+        if (previews.length === files.length) {
+          setImagePreviews(previews);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+    setErrors(prev => ({ ...prev, images: '' }));
+  };
+
+  const removeImage = (index) => {
+    const newImages = formData.images.filter((_, i) => i !== index);
+    const newPreviews = imagePreviews.filter((_, i) => i !== index);
+    setFormData(prev => ({ ...prev, images: newImages }));
+    setImagePreviews(newPreviews);
   };
 
 
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!formData.title || formData.title.trim().length < 3) {
+      newErrors.title = 'Title must be at least 3 characters';
+    }
+    if (!formData.description || formData.description.trim().length < 10) {
+      newErrors.description = 'Description must be at least 10 characters';
+    }
+    if (!formData.price || parseFloat(formData.price) <= 0) {
+      newErrors.price = 'Price must be greater than 0';
+    }
+    if (!formData.category) {
+      newErrors.category = 'Please select a category';
+    }
+    if (!formData.condition) {
+      newErrors.condition = 'Please select a condition';
+    }
+    if (formData.images.length === 0) {
+      newErrors.images = 'Please upload at least one image';
+    }
+    if (formData.isNegotiable && (!formData.minimumPrice || parseFloat(formData.minimumPrice) <= 0)) {
+      newErrors.minimumPrice = 'Please set a minimum price for negotiable items';
+    }
+    if (formData.isNegotiable && parseFloat(formData.minimumPrice) >= parseFloat(formData.price)) {
+      newErrors.minimumPrice = 'Minimum price must be less than price';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      setMessage('Please fix the errors in the form');
+      return;
+    }
+    
     try {
+      setIsSubmitting(true);
       // Create a FormData object to handle image file upload
       const data = new FormData();
       data.append("title", formData.title);
@@ -94,10 +190,35 @@ const SellItem = () => {
       });
 
       // Display success message
-      setMessage(response.data);
+      setMessage('Item posted successfully!');
+      // Reset form
+      setFormData({
+        title: "",
+        description: "",
+        category: "",
+        price: "",
+        condition: "",
+        brand: "",
+        model: "",
+        yearOfPurchase: "",
+        originalReceipt: null,
+        pickupProvince: "",
+        pickupDistrict: "",
+        pickupSector: "",
+        pickupCell: "",
+        pickupVillage: "",
+        pickupAddress: "",
+        images: [],
+        isNegotiable: true,
+        minimumPrice: "",
+      });
+      setImagePreviews([]);
+      setReceiptPreview(null);
     } catch (error) {
       console.error("Error adding item:", error);
-      setMessage("Failed to add item. Please try again.");
+      setMessage(error.response?.data?.message || "Failed to add item. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -109,9 +230,50 @@ const SellItem = () => {
         Turn your unused items into extra cash!
       </p>
       
-      {message && <p className="message">{message}</p>}
+      {message && <p className={message.includes('success') ? "message success" : "message error"}>{message}</p>}
       
       <form className="sell-item-form" onSubmit={handleSubmit}>
+        {/* Image Previews */}
+        {imagePreviews.length > 0 && (
+          <div className="form-group">
+            <label>Image Previews</label>
+            <div className="image-preview-grid">
+              {imagePreviews.map((preview, index) => (
+                <div key={index} className="image-preview-item">
+                  <img src={preview.url} alt={preview.name} />
+                  <button
+                    type="button"
+                    className="remove-image-btn"
+                    onClick={() => removeImage(index)}
+                    title="Remove image"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        {receiptPreview && (
+          <div className="form-group">
+            <label>Receipt Preview</label>
+            <div className="receipt-preview">
+              {receiptPreview.type.startsWith('image/') ? (
+                <img src={receiptPreview.url} alt="Receipt" style={{maxWidth: '200px'}} />
+              ) : (
+                <p>📄 {receiptPreview.name}</p>
+              )}
+              <button
+                type="button"
+                className="remove-receipt-btn"
+                onClick={removeReceipt}
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+        )}
         <div className="form-group">
           <label htmlFor="title">Item Title</label>
           <input
@@ -122,7 +284,9 @@ const SellItem = () => {
             onChange={handleChange}
             placeholder="Enter the title of your item"
             required
+            className={errors.title ? 'error' : ''}
           />
+          {errors.title && <span className="error-message">{errors.title}</span>}
         </div>
         <div className="form-group">
           <label htmlFor="description">Description</label>
