@@ -1,0 +1,16 @@
+.category-icon {
+  font-size: 24px;
+  display: inline-block;
+}
+
+.admin-categories-table {
+  margin-top: 20px;
+}
+
+.admin-categories-table td {
+  vertical-align: middle;
+}
+
+.admin-empty-state {
+  padding: 60px 0;
+}

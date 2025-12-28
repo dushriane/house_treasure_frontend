@@ -2,7 +2,8 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Container, Row, Col, Form, Button, Badge, Alert, Card, InputGroup } from 'react-bootstrap';
 import { useAuth } from '../contexts/AuthContext';
 import { messagesAPI } from '../services/api.js';
-import { FaComments, FaPaperPlane, FaUser, FaSearch, FaClock, FaCheck, FaCheckDouble } from 'react-icons/fa';
+import wsService from '../services/websocket';
+import { FaComments, FaPaperPlane, FaUser, FaSearch, FaClock, FaCheck, FaCheckDouble, FaCircle } from 'react-icons/fa';
 import { DashboardLayout, LoadingSpinner } from '../components';
 import './Messages.css';
 
@@ -18,6 +19,8 @@ const Messages = () => {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+  const [isConnected, setIsConnected] = useState(false);
+  const [typingUsers, setTypingUsers] = useState(new Set());
   const messagesEndRef = useRef(null);
 
   // Auto-scroll to bottom of messages
@@ -32,7 +35,54 @@ const Messages = () => {
   // Fetch conversations on mount
   useEffect(() => {
     fetchConversations();
-  }, []);
+    
+    // Connect to WebSocket
+    const token = localStorage.getItem('token');
+    if (user?.id && token) {
+      wsService.connect(user.id, token);
+      
+      // Set up listeners
+      const unsubscribeConnected = wsService.on('connected', () => {
+        setIsConnected(true);
+        console.log('WebSocket connected for messages');
+      });
+      
+      const unsubscribeDisconnected = wsService.on('disconnected', () => {
+        setIsConnected(false);
+      });
+      
+      const unsubscribeNewMessage = wsService.on('new-message', (message) => {
+        // Add message to current conversation if it's the active one
+        if (selectedConv && message.conversationId === selectedConv.id) {
+          setMessages(prev => [...prev, message]);
+        }
+        // Update conversation list
+        fetchConversations();
+      });
+      
+      const unsubscribeTyping = wsService.on('user-typing', ({ userId, conversationId, isTyping }) => {
+        if (selectedConv && conversationId === selectedConv.id) {
+          setTypingUsers(prev => {
+            const newSet = new Set(prev);
+            if (isTyping) {
+              newSet.add(userId);
+            } else {
+              newSet.delete(userId);
+            }
+            return newSet;
+          });
+        }
+      });
+      
+      // Cleanup
+      return () => {
+        unsubscribeConnected();
+        unsubscribeDisconnected();
+        unsubscribeNewMessage();
+        unsubscribeTyping();
+      };
+    }
+  }, [user]);
 
   // Fetch messages for selected conversation
   useEffect(() => {
@@ -76,12 +126,22 @@ const Messages = () => {
     
     try {
       setSending(true);
-      const response = await messagesAPI.sendMessage(selectedConv.id, {
-        text: newMsg.trim(),
-        senderId: user.id
-      });
       
-      setMessages(prev => [...prev, response.data]);
+      // Send via WebSocket if connected, otherwise fall back to HTTP
+      if (isConnected) {
+        wsService.sendMessage(selectedConv.id, {
+          text: newMsg.trim(),
+          senderId: user.id
+        });
+        // Message will be added via WebSocket listener
+      } else {
+        const response = await messagesAPI.sendMessage(selectedConv.id, {
+          text: newMsg.trim(),
+          senderId: user.id
+        });
+        setMessages(prev => [...prev, response.data]);
+      }
+      
       setNewMsg('');
       setSuccessMsg('Message sent successfully!');
       setTimeout(() => setSuccessMsg(''), 3000);

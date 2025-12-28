@@ -1,7 +1,8 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Toaster } from 'react-hot-toast';
+import analyticsService from './services/analytics';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 
@@ -23,6 +24,7 @@ import Offers from './pages/Offers';
 import NotFound from './pages/NotFound';
 import ItemList from './pages/items/ItemList';
 import ItemDetails from './pages/items/ItemDetails';
+import AdminCategories from './pages/admin/AdminCategories';
 
 type RouteProps = {
   children: React.ReactNode;
@@ -49,9 +51,45 @@ const PublicRoute: React.FC<RouteProps> = ({ children }) => {
   return user ? <Navigate to="/dashboard" /> : children;
 };
 
+// Admin Route Component
+const AdminRoute: React.FC<RouteProps> = ({ children }) => {
+  const { user, loading } = useAuth();
+  
+  if (loading) {
+    return <LoadingSpinner />;
+  }
+  
+  if (!user) {
+    return <Navigate to="/login" />;
+  }
+  
+  if (user.role !== 'ADMIN') {
+    return <Navigate to="/dashboard" />;
+  }
+  
+  return children;
+};
+
+// Analytics tracker
+function AnalyticsTracker() {
+  const location = useLocation();
+  
+  useEffect(() => {
+    analyticsService.pageView(location.pathname);
+  }, [location]);
+  
+  return null;
+}
+
 function AppContent() {
+  useEffect(() => {
+    // Initialize analytics
+    analyticsService.initialize();
+  }, []);
+  
   return (
     <Router>
+      <AnalyticsTracker />
       <div className="App">
         <Navbar />
         <main className="main-content">
@@ -154,6 +192,16 @@ function AppContent() {
                 <ProtectedRoute>
                   <Offers />
                 </ProtectedRoute>
+              } 
+            />
+            
+            {/* Admin Routes */}
+            <Route 
+              path="/admin/categories" 
+              element={
+                <AdminRoute>
+                  <AdminCategories />
+                </AdminRoute>
               } 
             />
             
