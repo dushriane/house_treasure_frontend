@@ -1,8 +1,8 @@
 .dashboard-layout {
   min-height: 100vh;
   display: flex;
-  background: #f8f9fa;
-  margin-top: 76px; /* Account for fixed navbar */
+  background: #f5f7fa;
+  margin-top: 76px;
 }
 
 .dashboard-main {
@@ -10,7 +10,7 @@
   display: flex;
   flex-direction: column;
   min-height: calc(100vh - 76px);
-  transition: margin-left 0.3s ease;
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .dashboard-main.with-sidebar {
@@ -19,6 +19,7 @@
 
 .dashboard-main.full-width {
   margin-left: 0;
+  width: 100%;
 }
 
 /* Large screens - sidebar is always visible */
@@ -28,40 +29,74 @@
   }
   
   .dashboard-main.with-sidebar {
-    /* margin-left: 280px; */
+    margin-left: 280px;
   }
 }
 
 .dashboard-container {
   flex: 1;
   padding: 0;
+  max-width: 100%;
 }
 
 .dashboard-header-row {
   background: white;
   margin: 0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   border-bottom: 1px solid #e9ecef;
+  position: sticky;
+  top: 76px;
+  z-index: 10;
 }
 
 .dashboard-page-header {
-  padding: 1.5rem 2rem;
+  padding: 1.75rem 2rem;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   margin: 0;
+  border-bottom: 3px solid rgba(255, 255, 255, 0.2);
 }
 
 .dashboard-page-title {
   font-size: 1.75rem;
-  font-weight: 600;
+  font-weight: 700;
   margin: 0;
   color: white;
+  letter-spacing: -0.5px;
 }
 
 .dashboard-content {
   padding: 2rem;
   flex: 1;
-  background: #f8f9fa;
+  background: #f5f7fa;
+  min-height: calc(100vh - 200px);
+}
+
+/* Cards in dashboard */
+.dashboard-content .card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  margin-bottom: 1.5rem;
+}
+
+.dashboard-content .card:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+.dashboard-content .card-header {
+  background: white;
+  border-bottom: 2px solid #f0f2f5;
+  padding: 1.25rem 1.5rem;
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #2c3e50;
+}
+
+.dashboard-content .card-body {
+  padding: 1.5rem;
 }
 
 /* Mobile adjustments */
@@ -75,7 +110,7 @@
   }
   
   .dashboard-page-header {
-    padding: 1rem 1.5rem;
+    padding: 1.25rem 1.5rem;
   }
   
   .dashboard-page-title {
@@ -84,6 +119,10 @@
   
   .dashboard-content {
     padding: 1.5rem;
+  }
+  
+  .dashboard-content .card {
+    margin-bottom: 1rem;
   }
 }
 
@@ -98,6 +137,17 @@
   
   .dashboard-content {
     padding: 1rem;
+  }
+  
+  .dashboard-content .card-header {
+    padding: 1rem;
+    font-size: 1rem;
+  }
+  
+  .dashboard-content .card-body {
+    padding: 1rem;
+  }
+}
   }
 }
 
