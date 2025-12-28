@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Row, Col, Card, Button, Badge, Alert, ButtonGroup, Spinner } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Badge, Alert, ButtonGroup, Spinner, Modal, Form } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { transactionsAPI } from '../services/api.js';
-import { FaExchangeAlt, FaEye, FaFilter, FaMoneyBillWave, FaClock, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
-import { DashboardLayout, LoadingSpinner } from '../components';
+import { FaExchangeAlt, FaEye, FaFilter, FaMoneyBillWave, FaClock, FaCheckCircle, FaTimesCircle, FaCheck, FaBan } from 'react-icons/fa';
+import { DashboardLayout, LoadingSpinner, AlertMessage } from '../components';
 import './Transactions.css';
 
 const Transactions = () => {
@@ -13,7 +13,12 @@ const Transactions = () => {
   const [filteredTransactions, setFilteredTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
+  const [actionLoading, setActionLoading] = useState(null);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
+  const [cancelReason, setCancelReason] = useState('');
 
   const filterOptions = [
     { key: 'all', label: 'All', icon: FaExchangeAlt },
@@ -53,6 +58,64 @@ const Transactions = () => {
     }
   };
 
+  const handleConfirmPayment = async (transactionId) => {
+    try {
+      setActionLoading(transactionId);
+      await transactionsAPI.confirmPayment(transactionId);
+      setSuccessMsg('Payment confirmed successfully!');
+      await fetchTransactions();
+      setTimeout(() => setSuccessMsg(''), 3000);
+    } catch (err) {
+      console.error('Error confirming payment:', err);
+      setError('Failed to confirm payment. Please try again.');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleCompleteTransaction = async (transactionId) => {
+    try {
+      setActionLoading(transactionId);
+      await transactionsAPI.completeTransaction(transactionId);
+      setSuccessMsg('Transaction completed successfully!');
+      await fetchTransactions();
+      setTimeout(() => setSuccessMsg(''), 3000);
+    } catch (err) {
+      console.error('Error completing transaction:', err);
+      setError('Failed to complete transaction. Please try again.');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleCancelTransaction = async () => {
+    if (!cancelReason.trim()) {
+      setError('Please provide a reason for cancellation.');
+      return;
+    }
+    
+    try {
+      setActionLoading(selectedTransaction.id);
+      await transactionsAPI.cancelTransaction(selectedTransaction.id, cancelReason);
+      setSuccessMsg('Transaction cancelled.');
+      setShowCancelModal(false);
+      setCancelReason('');
+      setSelectedTransaction(null);
+      await fetchTransactions();
+      setTimeout(() => setSuccessMsg(''), 3000);
+    } catch (err) {
+      console.error('Error cancelling transaction:', err);
+      setError('Failed to cancel transaction. Please try again.');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const openCancelModal = (transaction) => {
+    setSelectedTransaction(transaction);
+    setShowCancelModal(true);
+  };
+
   const getStatusBadge = (status) => {
     const statusConfig = {
       PENDING: { bg: 'warning', icon: FaClock },
@@ -82,6 +145,19 @@ const Transactions = () => {
 
   return (
     <DashboardLayout title="Transaction History">
+      {/* Success Message */}
+      {successMsg && (
+        <Row className="mb-4">
+          <Col>
+            <AlertMessage 
+              variant="success" 
+              message={successMsg} 
+              onClose={() => setSuccessMsg('')}
+            />
+          </Col>
+        </Row>
+      )}
+
       {/* Filter Section */}
       <Row className="mb-4">
         <Col>
@@ -206,15 +282,66 @@ const Transactions = () => {
                         <div className="transaction-status mb-2">
                           {getStatusBadge(transaction.status)}
                         </div>
-                        <Button 
-                          as={Link} 
-                          to={`/transactions/${transaction.id}`} 
-                          size="sm" 
-                          variant="outline-primary"
-                        >
-                          <FaEye className="me-1" />
-                          View
-                        </Button>
+                        <div className="transaction-actions">
+                          {transaction.status === 'PENDING' && transaction.type === 'PURCHASE' && (
+                            <Button
+                              size="sm"
+                              variant="success"
+                              className="mb-1 w-100"
+                              onClick={() => handleConfirmPayment(transaction.id)}
+                              disabled={actionLoading === transaction.id}
+                            >
+                              {actionLoading === transaction.id ? (
+                                <Spinner size="sm" animation="border" />
+                              ) : (
+                                <>
+                                  <FaCheck className="me-1" />
+                                  Confirm Payment
+                                </>
+                              )}
+                            </Button>
+                          )}
+                          {transaction.status === 'ONGOING' && transaction.type === 'SALE' && (
+                            <Button
+                              size="sm"
+                              variant="primary"
+                              className="mb-1 w-100"
+                              onClick={() => handleCompleteTransaction(transaction.id)}
+                              disabled={actionLoading === transaction.id}
+                            >
+                              {actionLoading === transaction.id ? (
+                                <Spinner size="sm" animation="border" />
+                              ) : (
+                                <>
+                                  <FaCheckCircle className="me-1" />
+                                  Complete
+                                </>
+                              )}
+                            </Button>
+                          )}
+                          {(transaction.status === 'PENDING' || transaction.status === 'ONGOING') && (
+                            <Button
+                              size="sm"
+                              variant="outline-danger"
+                              className="mb-1 w-100"
+                              onClick={() => openCancelModal(transaction)}
+                              disabled={actionLoading === transaction.id}
+                            >
+                              <FaBan className="me-1" />
+                              Cancel
+                            </Button>
+                          )}
+                          <Button 
+                            as={Link} 
+                            to={`/transactions/${transaction.id}`} 
+                            size="sm" 
+                            variant="outline-primary"
+                            className="w-100"
+                          >
+                            <FaEye className="me-1" />
+                            View
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -224,6 +351,43 @@ const Transactions = () => {
           </Card>
         </Col>
       </Row>
+
+      {/* Cancel Transaction Modal */}
+      <Modal show={showCancelModal} onHide={() => setShowCancelModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Cancel Transaction</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group>
+              <Form.Label>Reason for Cancellation</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                value={cancelReason}
+                onChange={(e) => setCancelReason(e.target.value)}
+                placeholder="Please provide a reason for cancelling this transaction..."
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowCancelModal(false)}>
+            Close
+          </Button>
+          <Button 
+            variant="danger" 
+            onClick={handleCancelTransaction}
+            disabled={actionLoading}
+          >
+            {actionLoading ? (
+              <Spinner size="sm" animation="border" />
+            ) : (
+              'Cancel Transaction'
+            )}
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </DashboardLayout>
   );
 };

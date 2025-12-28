@@ -42,7 +42,7 @@ const Profile = () => {
     try {
       setLoading(true);
       const [profileResponse, itemsResponse, transactionsResponse] = await Promise.all([
-        userAPI.getProfile(user.id),
+        usersAPI.getUserProfile(user.id),
         itemsAPI.getUserItems(user.id),
         transactionsAPI.getUserTransactions(user.id)
       ]);

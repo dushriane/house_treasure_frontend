@@ -114,6 +114,8 @@ export const messagesAPI = {
   sendMessage: (messageData) => api.post('/messages/send', messageData),
   getConversation: (userId1, userId2) => api.get(`/messages/conversation/${userId1}/${userId2}`),
   getUserMessages: (userId) => api.get(`/messages/users/${userId}/conversations`),
+  getConversations: (userId) => api.get(`/messages/users/${userId}/conversations`), // Alias for getUserMessages
+  getMessages: (conversationId) => api.get(`/messages/conversation/${conversationId}`),
   markAsRead: (id) => api.put(`/messages/${id}/mark-read`),
   deleteMessage: (id) => api.delete(`/messages/${id}`),
 };

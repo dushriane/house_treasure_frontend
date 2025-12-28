@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Row, Col, Card, Button, Badge, Alert, ButtonGroup } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Badge, Alert, ButtonGroup, Modal, Form, InputGroup, Spinner } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { offersAPI } from '../services/api.js';
-import { FaHandshake, FaEye, FaCheck, FaTimes, FaClock, FaCheckCircle, FaTimesCircle, FaFilter } from 'react-icons/fa';
-import { DashboardLayout, LoadingSpinner } from '../components';
+import { FaHandshake, FaEye, FaCheck, FaTimes, FaClock, FaCheckCircle, FaTimesCircle, FaFilter, FaReply } from 'react-icons/fa';
+import { DashboardLayout, LoadingSpinner, AlertMessage } from '../components';
 import './Offers.css';
 
 const Offers = () => {
@@ -16,6 +16,10 @@ const Offers = () => {
   const [actionMsg, setActionMsg] = useState('');
   const [actionLoading, setActionLoading] = useState(null);
   const [activeFilter, setActiveFilter] = useState('all');
+  const [showCounterModal, setShowCounterModal] = useState(false);
+  const [selectedOffer, setSelectedOffer] = useState(null);
+  const [counterAmount, setCounterAmount] = useState('');
+  const [counterMessage, setCounterMessage] = useState('');
 
   const filterOptions = [
     { key: 'all', label: 'All', icon: FaHandshake },
@@ -68,15 +72,48 @@ const Offers = () => {
     }
   };
 
-  const handleReject = async (offerId) => {
+  const handleReject = async (offerId, reason = '') => {
     try {
       setActionLoading(offerId);
-      await offersAPI.rejectOffer(offerId);
+      await offersAPI.rejectOffer(offerId, reason);
       setActionMsg('Offer rejected.');
-      setOffers(offers.map(o => o.id === offerId ? { ...o, status: 'REJECTED' } : o));
+      await fetchOffers();
     } catch (error) {
       console.error('Error rejecting offer:', error);
       setActionMsg('Failed to reject offer. Please try again.');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const openCounterModal = (offer) => {
+    setSelectedOffer(offer);
+    setCounterAmount('');
+    setCounterMessage('');
+    setShowCounterModal(true);
+  };
+
+  const handleCounterOffer = async () => {
+    if (!counterAmount || parseFloat(counterAmount) <= 0) {
+      setActionMsg('Please enter a valid counter offer amount.');
+      return;
+    }
+
+    try {
+      setActionLoading(selectedOffer.id);
+      await offersAPI.counterOffer(selectedOffer.id, {
+        amount: parseFloat(counterAmount),
+        message: counterMessage
+      });
+      setActionMsg('Counter offer sent successfully!');
+      setShowCounterModal(false);
+      setSelectedOffer(null);
+      setCounterAmount('');
+      setCounterMessage('');
+      await fetchOffers();
+    } catch (error) {
+      console.error('Error sending counter offer:', error);
+      setActionMsg('Failed to send counter offer. Please try again.');
     } finally {
       setActionLoading(null);
     }
@@ -247,18 +284,17 @@ const Offers = () => {
                         <div className="offer-status mb-2">
                           {getStatusBadge(offer.status)}
                         </div>
-                        <div className="offer-actions">
+                        <div className="offer-actions d-flex flex-wrap gap-1">
                           {offer.status === 'PENDING' && offer.type === 'RECEIVED' && (
                             <>
                               <Button
                                 size="sm"
                                 variant="success"
-                                className="me-2"
                                 onClick={() => handleAccept(offer.id)}
                                 disabled={actionLoading === offer.id}
                               >
                                 {actionLoading === offer.id ? (
-                                  <LoadingSpinner size="sm" />
+                                  <Spinner size="sm" animation="border" />
                                 ) : (
                                   <>
                                     <FaCheck className="me-1" />
@@ -268,12 +304,21 @@ const Offers = () => {
                               </Button>
                               <Button
                                 size="sm"
+                                variant="warning"
+                                onClick={() => openCounterModal(offer)}
+                                disabled={actionLoading === offer.id}
+                              >
+                                <FaReply className="me-1" />
+                                Counter
+                              </Button>
+                              <Button
+                                size="sm"
                                 variant="danger"
                                 onClick={() => handleReject(offer.id)}
                                 disabled={actionLoading === offer.id}
                               >
                                 {actionLoading === offer.id ? (
-                                  <LoadingSpinner size="sm" />
+                                  <Spinner size="sm" animation="border" />
                                 ) : (
                                   <>
                                     <FaTimes className="me-1" />
@@ -288,7 +333,6 @@ const Offers = () => {
                             to={`/offers/${offer.id}`} 
                             size="sm" 
                             variant="outline-primary"
-                            className="ms-2"
                           >
                             <FaEye className="me-1" />
                             View
@@ -303,6 +347,65 @@ const Offers = () => {
           </Card>
         </Col>
       </Row>
+
+      {/* Counter Offer Modal */}
+      <Modal show={showCounterModal} onHide={() => setShowCounterModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Make Counter Offer</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {selectedOffer && (
+            <>
+              <div className="mb-3">
+                <p className="mb-1"><strong>Item:</strong> {selectedOffer.itemTitle}</p>
+                <p className="mb-1"><strong>Original Offer:</strong> RWF {selectedOffer.amount?.toLocaleString()}</p>
+              </div>
+              <Form>
+                <Form.Group className="mb-3">
+                  <Form.Label>Counter Offer Amount (RWF)</Form.Label>
+                  <InputGroup>
+                    <InputGroup.Text>RWF</InputGroup.Text>
+                    <Form.Control
+                      type="number"
+                      value={counterAmount}
+                      onChange={(e) => setCounterAmount(e.target.value)}
+                      placeholder="Enter your counter offer amount"
+                      min="0"
+                      step="100"
+                    />
+                  </InputGroup>
+                </Form.Group>
+                <Form.Group>
+                  <Form.Label>Message (Optional)</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={3}
+                    value={counterMessage}
+                    onChange={(e) => setCounterMessage(e.target.value)}
+                    placeholder="Add a message to explain your counter offer..."
+                  />
+                </Form.Group>
+              </Form>
+            </>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowCounterModal(false)}>
+            Cancel
+          </Button>
+          <Button 
+            variant="primary" 
+            onClick={handleCounterOffer}
+            disabled={actionLoading}
+          >
+            {actionLoading ? (
+              <Spinner size="sm" animation="border" />
+            ) : (
+              'Send Counter Offer'
+            )}
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </DashboardLayout>
   );
 };
