@@ -440,18 +440,6 @@ const ItemList = () => {
                   </Col>
                 </Row>
                 
-                <Row>
-                      </Form.Select>
-                      <Button
-                        variant="outline-secondary"
-                        onClick={() => handleFilterChange('sortOrder', filters.sortOrder === 'asc' ? 'desc' : 'asc')}
-                      >
-                        {filters.sortOrder === 'asc' ? <FaSortAmountUp /> : <FaSortAmountDown />}
-                      </Button>
-                    </div>
-                  </Col>
-                </Row>
-                
                 <div className="filter-actions">
                   <Button variant="outline-danger" size="sm" onClick={handleClearFilters}>
                     <FaTimes className="me-2" />

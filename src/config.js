@@ -4,6 +4,10 @@
 const requiredEnvVars = {
   VITE_API_URL: import.meta.env.VITE_API_URL,
   VITE_WS_URL: import.meta.env.VITE_WS_URL,
+};
+
+// Optional environment variables (won't throw errors if missing)
+const optionalEnvVars = {
   VITE_GA_MEASUREMENT_ID: import.meta.env.VITE_GA_MEASUREMENT_ID,
 };
 
