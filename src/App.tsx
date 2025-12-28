@@ -1,30 +1,32 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Toaster } from 'react-hot-toast';
 import analyticsService from './services/analytics';
+import { ErrorBoundary } from './components';
+import config from './config';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 
-// Components
+// Components (not lazy-loaded - needed immediately)
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import LoadingSpinner from './components/common/LoadingSpinner';
 
-// Pages
-import Home from './pages/Home';
-import Login from './pages/auth/Login';
-import Register from './pages/auth/Register';
-import Dashboard from './pages/Dashboard';
-import EditItem from './pages/items/EditItem';
-import Profile from './pages/Profile';
-import Messages from './pages/Messages';
-import Transactions from './pages/Transactions';
-import Offers from './pages/Offers';
-import NotFound from './pages/NotFound';
-import ItemList from './pages/items/ItemList';
-import ItemDetails from './pages/items/ItemDetails';
-import AdminCategories from './pages/admin/AdminCategories';
+// Lazy-loaded Pages
+const Home = lazy(() => import('./pages/Home'));
+const Login = lazy(() => import('./pages/auth/Login'));
+const Register = lazy(() => import('./pages/auth/Register'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const EditItem = lazy(() => import('./pages/items/EditItem'));
+const Profile = lazy(() => import('./pages/Profile'));
+const Messages = lazy(() => import('./pages/Messages'));
+const Transactions = lazy(() => import('./pages/Transactions'));
+const Offers = lazy(() => import('./pages/Offers'));
+const NotFound = lazy(() => import('./pages/NotFound'));
+const ItemList = lazy(() => import('./pages/items/ItemList'));
+const ItemDetails = lazy(() => import('./pages/items/ItemDetails'));
+const AdminCategories = lazy(() => import('./pages/admin/AdminCategories'));
 
 type RouteProps = {
   children: React.ReactNode;
@@ -83,8 +85,10 @@ function AnalyticsTracker() {
 
 function AppContent() {
   useEffect(() => {
-    // Initialize analytics
-    analyticsService.initialize();
+    // Initialize analytics with config
+    if (config.gaMeasurementId) {
+      analyticsService.initialize();
+    }
   }, []);
   
   return (
@@ -93,9 +97,10 @@ function AppContent() {
       <div className="App">
         <Navbar />
         <main className="main-content">
-      <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<Home />} />
+          <Suspense fallback={<LoadingSpinner />}>
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={<Home />} />
 
             {/* Items Routes - Public browsing */}
             <Route 
@@ -207,7 +212,8 @@ function AppContent() {
             
             {/* 404 Route */}
             <Route path="*" element={<NotFound />} />
-      </Routes>
+            </Routes>
+          </Suspense>
         </main>
         <Footer />
         <Toaster 
@@ -227,9 +233,11 @@ function AppContent() {
 
 function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 

@@ -1,6 +1,7 @@
 import axios from 'axios';
+import config from '../config';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+const API_BASE_URL = config.apiUrl;
 
 // Create axios instance with default config
 const api = axios.create({
@@ -61,7 +62,13 @@ export const usersAPI = {
 export const itemsAPI = {
   getAllItems: (params = {}) => api.get('/items', { params }),
   getItemById: (id) => api.get(`/items/${id}`),
-  createItem: (itemData) => api.post('/items', itemData),
+  createItem: (itemData) => {
+    // Handle FormData with proper headers
+    const config = itemData instanceof FormData 
+      ? { headers: { 'Content-Type': 'multipart/form-data' } }
+      : {};
+    return api.post('/items', itemData, config);
+  },
   updateItem: (id, itemData) => api.put(`/items/${id}`, itemData),
   deleteItem: (id) => api.delete(`/items/${id}`),
   getUserItems: (sellerId) => api.get(`/items/seller/${sellerId}`), // Fixed endpoint

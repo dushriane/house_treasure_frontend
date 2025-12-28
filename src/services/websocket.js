@@ -1,3 +1,5 @@
+import config from '../config';
+
 // WebSocket Service for Real-time Messaging
 class WebSocketService {
   constructor() {
@@ -18,7 +20,7 @@ class WebSocketService {
     }
 
     this.userId = userId;
-    const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:8080/ws';
+    const wsUrl = config.wsUrl;
     
     try {
       this.ws = new WebSocket(`${wsUrl}?userId=${userId}&token=${token}`);
@@ -78,7 +80,13 @@ class WebSocketService {
       
       setTimeout(() => {
         if (this.userId) {
+          // Get fresh token from localStorage - consider implementing token refresh endpoint
           const token = localStorage.getItem('token');
+          if (!token) {
+            console.error('No token available for reconnection');
+            this.emit('reconnect-failed');
+            return;
+          }
           this.connect(this.userId, token);
         }
       }, this.reconnectInterval * this.reconnectAttempts);

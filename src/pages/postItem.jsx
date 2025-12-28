@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./postItem.css";
 import Navbar from "../components/layout/Navbar";
-import axios from "axios";
+import { itemsAPI } from "../services/api";
 
 const SellItem = () => {
   const [formData, setFormData] = useState({
@@ -182,12 +182,8 @@ const SellItem = () => {
         });
       }
 
-      // Send POST request to the backend
-      const response = await axios.post("http://localhost:8080/api/items", data, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      // Send POST request to the backend using itemsAPI
+      const response = await itemsAPI.createItem(data);
 
       // Display success message
       setMessage('Item posted successfully!');

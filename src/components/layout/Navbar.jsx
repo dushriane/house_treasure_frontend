@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Navbar, Nav, Container, Button, Dropdown, Form, InputGroup } from 'react-bootstrap';
 import { useAuth } from '../../contexts/AuthContext';
 import { FaSearch, FaUser, FaSignOutAlt, FaHome, FaPlus, FaComments, FaExchangeAlt, FaHandshake, FaList } from 'react-icons/fa';
+import { OfflineIndicator } from '../index';
 import './Navbar.css';
 
 const NavigationBar = () => {
@@ -28,7 +29,9 @@ const NavigationBar = () => {
   };
 
   return (
-    <Navbar bg="white" expand="lg" className="navbar-custom shadow-sm" fixed="top">
+    <>
+      <OfflineIndicator />
+      <Navbar bg="white" expand="lg" className="navbar-custom shadow-sm" fixed="top">
       <Container>
         <Navbar.Brand as={Link} to="/" className="brand-logo">
           <FaHome className="me-2" />
@@ -138,6 +141,7 @@ const NavigationBar = () => {
         </Navbar.Collapse>
       </Container>
     </Navbar>
+    </>
   );
 };
 

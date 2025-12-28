@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Card, Form, Button, Spinner, Badge } from 'react-bootstrap';
 import { FiUpload, FiX, FiSave, FiArrowLeft, FiImage, FiTrash2, FiPlus } from 'react-icons/fi';
 import { AuthContext } from '../../contexts/AuthContext';
+import { itemsAPI } from '../../services/api';
 import './EditItem.css';
 
 const EditItem = () => {
@@ -75,17 +76,8 @@ const EditItem = () => {
     setError('');
     
     try {
-      const response = await fetch(`http://localhost:8080/api/items/${id}`, {
-        headers: {
-          'Authorization': `Bearer ${user?.token}`
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to load item data');
-      }
-      
-      const data = await response.json();
+      const response = await itemsAPI.getItemById(id);
+      const data = response.data;
       
       // Check if user owns this item
       if (data.seller?.id !== user?.id) {
@@ -394,43 +386,12 @@ const EditItem = () => {
         submitData.append('deletedImages', JSON.stringify(deletedImages));
       }
 
-      const url = id ? `http://localhost:8080/api/items/${id}` : 'http://localhost:8080/api/items';
-      const method = id ? 'PUT' : 'POST';
+      // Use itemsAPI service with proper auth handling
+      const response = id 
+        ? await itemsAPI.updateItem(id, submitData)
+        : await itemsAPI.createItem(submitData);
       
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Authorization': `Bearer ${user?.token}`
-        },
-        body: submitData
-      });
-
-      // if (!response.ok) {
-      //   const errorData = await response.json();
-      //   throw new Error(errorData.message || 'Failed to save item');
-      // }
-
-        if (!response.ok) {
-        let errorMessage;
-        const contentType = response.headers.get('content-type');
-        
-        if (contentType && contentType.includes('application/json')) {
-          try {
-            const errorData = await response.json();
-            errorMessage = errorData.message || errorData.error || `HTTP ${response.status}: ${response.statusText}`;
-          } catch (e) {
-            errorMessage = `HTTP ${response.status}: ${response.statusText}`;
-          }
-        } else {
-          const errorText = await response.text();
-          errorMessage = errorText || `HTTP ${response.status}: ${response.statusText}`;
-        }
-        
-        console.error('Error response:', errorMessage);
-        throw new Error(errorMessage);
-      }
-
-      const savedItem = await response.json();
+      const savedItem = response.data;
       setSuccess(id ? 'Item updated successfully!' : 'Item created successfully!');
       
       // Redirect after a short delay
