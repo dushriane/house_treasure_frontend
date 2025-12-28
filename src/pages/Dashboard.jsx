@@ -38,9 +38,9 @@ const Dashboard = () => {
         offersAPI.getUserOffers(user.id)
       ]);
 
-      const items = itemsResponse.data || [];
-      const transactions = transactionsResponse.data || [];
-      const offers = offersResponse.data || [];
+      const items = Array.isArray(itemsResponse.data) ? itemsResponse.data : [];
+      const transactions = Array.isArray(transactionsResponse.data) ? transactionsResponse.data : [];
+      const offers = Array.isArray(offersResponse.data) ? offersResponse.data : [];
 
       // Calculate revenue
       const totalRevenue = transactions

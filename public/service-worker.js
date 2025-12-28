@@ -1,6 +1,6 @@
 /* eslint-disable no-restricted-globals */
 
-const CACHE_NAME = 'house-treasures-v1';
+const CACHE_NAME = 'house-treasures-v2';
 const urlsToCache = [
   '/',
   '/index.html',

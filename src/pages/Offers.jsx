@@ -40,11 +40,13 @@ const Offers = () => {
     try {
       setLoading(true);
       const response = await offersAPI.getUserOffers(user.id);
-      setOffers(response.data || []);
+      const offersData = Array.isArray(response.data) ? response.data : [];
+      setOffers(offersData);
       setError('');
     } catch (err) {
       console.error('Error fetching offers:', err);
       setError('Failed to load offers. Please try again.');
+      setOffers([]);
     } finally {
       setLoading(false);
     }
